@@ -126,17 +126,21 @@ public class TaskReminderService {
     // =========================================================
     // EMAIL REMINDERS
     // =========================================================
+private void processEmailReminders() {
 
-    private void processEmailReminders() {
+    LocalDateTime now = LocalDateTime.now();
 
-        List<TaskReminder> reminders =
-                reminderRepository
-                        .findByReminderAtLessThanEqualAndEmailSentFalse(
-                                LocalDateTime.now());
+    log.info("CURRENT SERVER TIME: {}", now);
 
-        log.info(
-                "Due email reminders found: {}",
-                reminders.size());
+    List<TaskReminder> reminders =
+            reminderRepository
+                    .findByReminderAtLessThanEqualAndEmailSentFalse(now);
+
+    log.info(
+            "Due email reminders found: {}",
+            reminders.size());
+
+    // rest of your existing code...
 
         for (TaskReminder reminder : reminders) {
 
