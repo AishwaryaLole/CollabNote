@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getDocuments } from "../services/api";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+  import.meta.env.VITE_API_BASE_URL || "https://collabnote-hjac.onrender.com";
 
 const userIdOf = (u) => u?.id ?? u?.userId ?? u?.user_id;
 const userNameOf = (u) =>

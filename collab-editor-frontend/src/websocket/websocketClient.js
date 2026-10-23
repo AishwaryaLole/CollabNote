@@ -1,6 +1,6 @@
 import { Client } from "@stomp/stompjs";
 
-const WS_URL = "ws://localhost:8080/ws";
+const WS_URL = "wss://collabnote-hjac.onrender.com/ws";
 
 let client = null;
 

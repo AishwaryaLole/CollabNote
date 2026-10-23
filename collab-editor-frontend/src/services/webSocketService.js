@@ -4,8 +4,8 @@ let stompClient = null;
 
 export const connectWebSocket = (documentId, onMessageReceived) => {
 
-    stompClient = new Client({
-        brokerURL: "ws://localhost:8080/ws",
+   stompClient = new Client({
+    brokerURL: "wss://collabnote-hjac.onrender.com/ws",
 
         onConnect: () => {
             console.log("WebSocket connected");
