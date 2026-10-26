@@ -33,9 +33,7 @@ public class User {
 	
     @Column(nullable = false, length = 255)
 	private String password;
-    
-    @Column(name = "phone_number", length = 15)
-    private String phoneNumber;
+   
     
     @Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
