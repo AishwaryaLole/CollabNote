@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -36,6 +37,14 @@ public class TaskReminderService {
     private final UserRepository userRepository;
     private final DocumentCollaboratorRepository collaboratorRepository;
     private final EmailService emailService;
+
+    /*
+     * All reminder times are treated as Indian Standard Time.
+     * Render servers normally run in UTC, so we must not use
+     * LocalDateTime.now() directly for reminder comparison.
+     */
+    private static final ZoneId INDIA_ZONE =
+            ZoneId.of("Asia/Kolkata");
 
     @Scheduled(fixedDelay = 30000)
     @Transactional
@@ -52,10 +61,23 @@ public class TaskReminderService {
 
     private void processInAppReminders() {
 
+        LocalDateTime now =
+                LocalDateTime.now(INDIA_ZONE);
+
+        log.info(
+                "CURRENT IST TIME: {}",
+                now
+        );
+
         List<TaskReminder> reminders =
                 reminderRepository
                         .findByReminderAtLessThanEqualAndInAppSentFalse(
-                                LocalDateTime.now());
+                                now);
+
+        log.info(
+                "Due in-app reminders found: {}",
+                reminders.size()
+        );
 
         for (TaskReminder reminder : reminders) {
 
@@ -107,7 +129,14 @@ public class TaskReminderService {
 
                 reminder.setInAppSent(true);
                 reminder.setInAppStatus("SENT");
-                reminder.setInAppSentAt(LocalDateTime.now());
+                reminder.setInAppSentAt(
+                        LocalDateTime.now(INDIA_ZONE));
+
+                log.info(
+                        "In-app reminder {} sent to user {}",
+                        reminder.getId(),
+                        reminder.getRecipient().getId()
+                );
 
             } catch (Exception e) {
 
@@ -126,21 +155,25 @@ public class TaskReminderService {
     // =========================================================
     // EMAIL REMINDERS
     // =========================================================
-private void processEmailReminders() {
 
-    LocalDateTime now = LocalDateTime.now();
+    private void processEmailReminders() {
 
-    log.info("CURRENT SERVER TIME: {}", now);
+        LocalDateTime now =
+                LocalDateTime.now(INDIA_ZONE);
 
-    List<TaskReminder> reminders =
-            reminderRepository
-                    .findByReminderAtLessThanEqualAndEmailSentFalse(now);
+        log.info(
+                "CURRENT IST TIME: {}",
+                now
+        );
 
-    log.info(
-            "Due email reminders found: {}",
-            reminders.size());
+        List<TaskReminder> reminders =
+                reminderRepository
+                        .findByReminderAtLessThanEqualAndEmailSentFalse(
+                                now);
 
-    // rest of your existing code...
+        log.info(
+                "Due email reminders found: {}",
+                reminders.size());
 
         for (TaskReminder reminder : reminders) {
 
@@ -196,7 +229,8 @@ private void processEmailReminders() {
 
                 reminder.setEmailSent(true);
                 reminder.setEmailStatus("SENT");
-                reminder.setEmailSentAt(LocalDateTime.now());
+                reminder.setEmailSentAt(
+                        LocalDateTime.now(INDIA_ZONE));
 
                 log.info(
                         "Email reminder {} sent to {}",
@@ -229,8 +263,11 @@ private void processEmailReminders() {
             LocalDateTime reminderAt,
             String message) {
 
+        LocalDateTime now =
+                LocalDateTime.now(INDIA_ZONE);
+
         if (reminderAt == null ||
-                !reminderAt.isAfter(LocalDateTime.now())) {
+                !reminderAt.isAfter(now)) {
 
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -266,8 +303,11 @@ private void processEmailReminders() {
 
         if (taskId == null) {
 
-            // Personal reminder always belongs to the logged-in user.
-            TaskReminder reminder = new TaskReminder();
+            // Personal reminder always belongs to
+            // the logged-in user.
+
+            TaskReminder reminder =
+                    new TaskReminder();
 
             reminder.setTask(null);
             reminder.setRecipient(requester);
@@ -313,11 +353,13 @@ private void processEmailReminders() {
                     "You cannot schedule a reminder for this task");
         }
 
-        Document document = task.getDocument();
+        Document document =
+                task.getDocument();
 
         if (document != null) {
 
-            Long documentId = document.getId();
+            Long documentId =
+                    document.getId();
 
             boolean isOwner =
                     document.getOwner()
@@ -362,7 +404,8 @@ private void processEmailReminders() {
                     "Cannot schedule a reminder for a completed task");
         }
 
-        TaskReminder reminder = new TaskReminder();
+        TaskReminder reminder =
+                new TaskReminder();
 
         reminder.setTask(task);
         reminder.setRecipient(recipient);
