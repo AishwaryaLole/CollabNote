@@ -37,12 +37,5 @@ public class UserController {
          userService.deleteUser(id);
     }
     
-    @PutMapping("/{id}/phone")
-    public User updatePhoneNumber(
-            @PathVariable Long id,
-            @RequestBody Map<String, String> request) {
-
-        return userService.updatePhoneNumber(
-                id, request.get("phoneNumber"));
-    }
+   
 }
