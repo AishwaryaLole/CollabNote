@@ -32,9 +32,5 @@ public class UserService {
         userRepository.deleteById(id);
     }
     
-    public User updatePhoneNumber(Long id, String phoneNumber) {
-        User user = getUser(id);
-        user.setPhoneNumber(phoneNumber);
-        return userRepository.save(user);
-    }
+  
 }
